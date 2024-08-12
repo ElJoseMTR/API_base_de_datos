@@ -1188,7 +1188,6 @@ def verrespuestas_a_preguntas(user):
 
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 3000))
-    app.run(port=port, debug=True)
+    app.run(host='0.0.0.0', port=10000, debug=True)
+
 
