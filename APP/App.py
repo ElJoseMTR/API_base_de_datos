@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 from flask_mysqldb import MySQL
 from flask_cors import CORS
+import jwt
+import datetime
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -40,7 +42,21 @@ def getAll():
     except Exception as e:
         print(e)
         return jsonify({"informacion": e})
-    
+
+def generar_jwt(user):
+    """Genera un token JWT."""
+    try:
+        payload = {
+            'user': user,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token válido por 1 hora
+        }
+        token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
+        return token
+    except Exception as e:
+        print(f'Error al generar el token: {e}')
+        return None
+
+
 @app.route('/testdb', methods=['GET'])
 def test_db():
     try:
@@ -449,10 +465,16 @@ def login():
         cur.execute('SELECT * FROM estudiantes WHERE user = %s AND password = %s', (user, password))
         rv = cur.fetchone()
         cur.close()
+
         if rv:
-            return jsonify({"informacion": "Inicio de sesión exitoso"})
+            token = generar_jwt(user)
+            if token:
+                return jsonify({"token": token, "informacion": "Inicio de sesión exitoso"})
+            else:
+                return jsonify({"informacion": "Error al generar el token"}), 500
         else:
-            return jsonify({"informacion": "Credenciales incorrectas"})
+            return jsonify({"informacion": "Credenciales incorrectas"}), 401
+
     except Exception as e:
         print(e)
         return jsonify({"informacion": str(e)}), 400
