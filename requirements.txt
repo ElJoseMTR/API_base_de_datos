@@ -2,5 +2,6 @@ Flask
 flask-mysqldb
 flask-cors
 werkzeug
+pyjwt
 jwt
 datetime
