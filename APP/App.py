@@ -1,14 +1,12 @@
 from flask import Flask, request, jsonify, render_template
 from flask_mysqldb import MySQL
 from flask_cors import CORS
+from werkzeug.security import check_password_hash, generate_password_hash
 import jwt
 import datetime
-from werkzeug.security import check_password_hash, generate_password_hash
-
 
 app = Flask(__name__)
 CORS(app)
-app.secret_key = "mysecretkey"
 
 # Configuración de la base de datos
 app.config['MYSQL_HOST'] = 'bftrwaz6kfwo34lumlfh-mysql.services.clever-cloud.com'
@@ -43,21 +41,7 @@ def getAll():
     except Exception as e:
         print(e)
         return jsonify({"informacion": e})
-
-def generar_jwt(user):
-    """Genera un token JWT."""
-    try:
-        payload = {
-            'user': user,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Token válido por 1 hora
-        }
-        token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
-        return token
-    except Exception as e:
-        print(f'Error al generar el token: {e}')
-        return None
-
-
+    
 @app.route('/testdb', methods=['GET'])
 def test_db():
     try:
@@ -457,6 +441,8 @@ def delete_contact(user):
         return jsonify({"informacion": str(e)})
     
 #para el login de la pag
+
+    
 @app.route('/login', methods=['GET'])
 def login():
     try:
@@ -468,7 +454,8 @@ def login():
         cur.close()
         
         if rv:
-           token = jwt.encode({
+            # Generar un token JWT
+            token = jwt.encode({
                 'user': user,
                 'password': password,
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
@@ -495,7 +482,7 @@ def loginAdmin():
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
             return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
@@ -519,7 +506,7 @@ def loginMedico():
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
             return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
@@ -1222,7 +1209,6 @@ def verrespuestas_a_preguntas(user):
     except Exception as e:
         print(e)
         return jsonify({"informacion": str(e)})
-
 
 
 if __name__ == "__main__":
