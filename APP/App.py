@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, Response, request, jsonify, render_template
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from werkzeug.security import check_password_hash, generate_password_hash
 import jwt
 import datetime
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app)
@@ -53,6 +54,30 @@ def test_db():
     except Exception as e:
         return jsonify({"error": str(e)})
 
+@app.route('/download_excel', methods=['GET'])
+def download_excel():
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM datos")
+        datos = cur.fetchall()
+        cur.close()
+
+        columnas = ['user', 'nombre', 'apellido', 'edad', 'carrera', 'cuatrimestre', 'deporte', 'genero']
+        df = pd.DataFrame(datos, columns=columnas)
+
+        
+        output = pd.ExcelWriter('datos.xlsx', engine='openpyxl')
+        with output as writer:
+            df.to_excel(writer, index=False)
+
+        with open('datos.xlsx', 'rb') as f:
+            data = f.read()
+        
+        response = Response(data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response.headers.set('Content-Disposition', 'attachment', filename='datos.xlsx')
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 #para ver los cosas de un solo0 usuario de la tabla de estudiantes
 @app.route('/getAllByUser/<user>', methods=['GET'])
