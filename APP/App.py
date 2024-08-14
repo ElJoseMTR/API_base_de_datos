@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 CORS(app)
-app.config['SECRET_KEY'] = 'a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef12345678'
+app.secret_key = "mysecretkey"
 
 # Configuración de la base de datos
 app.config['MYSQL_HOST'] = 'bftrwaz6kfwo34lumlfh-mysql.services.clever-cloud.com'
@@ -468,9 +468,13 @@ def login():
         cur.close()
         
         if rv:
-           
+           token = jwt.encode({
+                'user': user,
+                'password': password,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
+            }, app.config['SECRET_KEY'], algorithm='HS256')
             
-            return jsonify({"informacion": "Inicio de sesión exitoso"})
+            return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
         else:
             return jsonify({"informacion": "Credenciales incorrectas"}), 401
     except Exception as e:
