@@ -54,30 +54,6 @@ def test_db():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-@app.route('/download_excel', methods=['GET'])
-def download_excel():
-    try:
-        cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM datos")
-        datos = cur.fetchall()
-        cur.close()
-
-        columnas = ['user', 'nombre', 'apellido', 'edad', 'carrera', 'cuatrimestre', 'deporte', 'genero']
-        df = pd.DataFrame(datos, columns=columnas)
-
-        
-        output = pd.ExcelWriter('datos.xlsx', engine='openpyxl')
-        with output as writer:
-            df.to_excel(writer, index=False)
-
-        with open('datos.xlsx', 'rb') as f:
-            data = f.read()
-        
-        response = Response(data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response.headers.set('Content-Disposition', 'attachment', filename='datos.xlsx')
-        return response
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 #para ver los cosas de un solo0 usuario de la tabla de estudiantes
 @app.route('/getAllByUser/<user>', methods=['GET'])
@@ -504,14 +480,13 @@ def loginAdmin():
         rv = cur.fetchone()
         cur.close()
         if rv:
-           # Generar un token JWT
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
-           return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
+            return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
             
         else:
             return jsonify({"informacion": "Credenciales incorrectas"})
@@ -529,11 +504,10 @@ def loginMedico():
         rv = cur.fetchone()
         cur.close()
         if rv:
-           # Generar un token JWT
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
             return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
@@ -613,6 +587,32 @@ def obtener_usuario_por_user(user):
     except Exception as e:
         app.logger.error(f"Error al obtener usuario: {e}")
         return jsonify({'error': 'Error interno del servidor'}), 500
+    
+    
+@app.route('/download_excel', methods=['GET'])
+def download_excel():
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM datos")
+        datos = cur.fetchall()
+        cur.close()
+
+        columnas = ['user', 'nombre', 'apellido', 'edad', 'carrera', 'cuatrimestre', 'deporte', 'genero']
+        df = pd.DataFrame(datos, columns=columnas)
+
+        
+        output = pd.ExcelWriter('datos.xlsx', engine='openpyxl')
+        with output as writer:
+            df.to_excel(writer, index=False)
+
+        with open('datos.xlsx', 'rb') as f:
+            data = f.read()
+        
+        response = Response(data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response.headers.set('Content-Disposition', 'attachment', filename='datos.xlsx')
+        return response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
 @app.route('/obtener_datosmedico/<user>', methods=['GET'])
 def obtener_datosmedico(user):
