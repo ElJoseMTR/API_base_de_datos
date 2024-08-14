@@ -467,14 +467,9 @@ def login():
         cur.close()
         
         if rv:
-            # Generar un token JWT
-            token = jwt.encode({
-                'user': user,
-                'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
-            }, app.config['SECRET_KEY'], algorithm='HS256')
+           
             
-            return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
+            return jsonify({"informacion": "Inicio de sesión exitoso"})
         else:
             return jsonify({"informacion": "Credenciales incorrectas"}), 401
     except Exception as e:
