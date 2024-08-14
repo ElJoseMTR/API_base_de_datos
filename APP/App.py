@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 CORS(app)
+app.config['SECRET_KEY'] = 'a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef12345678'
 
 # Configuración de la base de datos
 app.config['MYSQL_HOST'] = 'bftrwaz6kfwo34lumlfh-mysql.services.clever-cloud.com'
