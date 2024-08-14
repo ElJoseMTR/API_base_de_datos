@@ -3,4 +3,5 @@ flask-mysqldb
 flask-cors
 werkzeug
 pyjwt
-pandas openpyxl
+pandas
+openpyxl
