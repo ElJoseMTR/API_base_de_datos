@@ -479,13 +479,14 @@ def loginAdmin():
         rv = cur.fetchone()
         cur.close()
         if rv:
+           # Generar un token JWT
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
-            return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
+           return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
             
         else:
             return jsonify({"informacion": "Credenciales incorrectas"})
@@ -503,10 +504,11 @@ def loginMedico():
         rv = cur.fetchone()
         cur.close()
         if rv:
+           # Generar un token JWT
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
             return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
