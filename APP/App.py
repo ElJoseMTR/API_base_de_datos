@@ -465,16 +465,18 @@ def login():
         cur.execute('SELECT * FROM estudiantes WHERE user = %s AND password = %s', (user, password))
         rv = cur.fetchone()
         cur.close()
-
+        
         if rv:
-            token = generar_jwt(user)
-            if token:
-                return jsonify({"token": token, "informacion": "Inicio de sesión exitoso"})
-            else:
-                return jsonify({"informacion": "Error al generar el token"}), 500
+            # Generar un token JWT
+            token = jwt.encode({
+                'user': user,
+                'password': password,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+            
+            return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
         else:
             return jsonify({"informacion": "Credenciales incorrectas"}), 401
-
     except Exception as e:
         print(e)
         return jsonify({"informacion": str(e)}), 400
@@ -490,7 +492,14 @@ def loginAdmin():
         rv = cur.fetchone()
         cur.close()
         if rv:
-            return jsonify({"informacion": "Inicio de sesión exitosoo"})
+            token = jwt.encode({
+                'user': user,
+                'password': password,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1) 
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+            
+            return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
+            
         else:
             return jsonify({"informacion": "Credenciales incorrectas"})
     except Exception as e:
@@ -507,7 +516,14 @@ def loginMedico():
         rv = cur.fetchone()
         cur.close()
         if rv:
-            return jsonify({"informacion": "Inicio de sesión exitosoo"})
+            token = jwt.encode({
+                'user': user,
+                'password': password,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  
+            }, app.config['SECRET_KEY'], algorithm='HS256')
+            
+            return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
+            
         else:
             return jsonify({"informacion": "Credenciales incorrectas"})
     except Exception as e:
