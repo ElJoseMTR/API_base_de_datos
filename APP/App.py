@@ -483,7 +483,7 @@ def loginAdmin():
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
             return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
@@ -507,7 +507,7 @@ def loginMedico():
             token = jwt.encode({
                 'user': user,
                 'password': password,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  # Expiración en 1 hora
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)  
             }, app.config['SECRET_KEY'], algorithm='HS256')
             
             return jsonify({"informacion": "Inicio de sesión exitoso", "token": token})
