@@ -1139,6 +1139,38 @@ def usuarios_por_carrera():
         print(e)
         return jsonify({"informacion": str(e)})
 
+@app.route('/usuarios_con_enfermedades', methods=['GET'])
+def usuarios_con_enfermedades():
+    try:
+        cur = mysql.connection.cursor()
+        
+        cur.execute("""
+            SELECT 
+                enfermedades as grupo,
+                COUNT(*) as total
+            FROM preguntas
+            GROUP BY enfermedades
+        """)
+        rv = cur.fetchall()
+        cur.close()
+        con_enfermedades = 0
+        sin_enfermedades = 0
+
+        # Agrupar los resultados
+        for result in rv:
+            if result[0] == 'no':
+                sin_enfermedades = result[1]
+            else:
+                con_enfermedades = result[1]
+        payload = {
+            'sin_enfermedades': sin_enfermedades,
+            'con_enfermedades': con_enfermedades
+        }
+        return jsonify(payload)
+    except Exception as e:
+        print(e)
+        return jsonify({"informacion": str(e)})
+
 #genero estadisticas
 @app.route('/usuarios_por_genero', methods=['GET'])
 def usuarios_por_genero():
